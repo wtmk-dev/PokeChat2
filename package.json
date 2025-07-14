@@ -1,0 +1,28 @@
+{
+  "name": "pokechat2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wtmk-dev/PokeChat2.git"
+  },
+  "author": "BK",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wtmk-dev/PokeChat2/issues"
+  },
+  "homepage": "https://github.com/wtmk-dev/PokeChat2#readme",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "tmi": "^2.0.0",
+    "twitch": "^4.6.7",
+    "twitch-auth": "^4.6.7",
+    "twitch-eventsub": "^4.6.7",
+    "twitch-pubsub-client": "^4.6.7"
+  }
+}

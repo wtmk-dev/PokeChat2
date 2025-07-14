@@ -1,0 +1,34 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# dotenv environment files
+.env
+.env.*
+
+# Optional: Ignore editor-specific files
+.vscode/
+.idea/
+
+# Build and cache
+dist/
+build/
+.cache/
+coverage/
+
+# Optional: Ignore test outputs
+*.test.js.snap
+
+# Optional: Ignore lock files (only if you prefer one package manager)
+# package-lock.json
+# yarn.lock
