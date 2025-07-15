@@ -1,3 +1,6 @@
+const struct = require("./data/struct")
+const tests = require("./tests/pokechatTests")
+
 const run = () =>
 {
   console.log("pokechat is running")
@@ -8,8 +11,11 @@ const test = () =>
   let passed = false
   console.log("tests are running")
 
+  let createTrainerTest = tests.createTrainerTest()
+
   return passed
 }
+
 
 
 module.exports = 
