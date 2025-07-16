@@ -1,44 +1,48 @@
 const tmi = require('tmi.js')
 
-const CHANNEL = process.env.CHANNEL
-const BOT_USERNAME = process.env.BOT_USERNAME
-
-const client = new tmi.Client
-(
-    {
-        connection: 
-        {
-            secure: true,
-            reconnect: true
-        },
-        identity:
-        {
-            username: BOT_USERNAME,
-            password: process.env.C_ACCESS_TOKEN
-        },
-        channels: [CHANNEL]
-    }
-)
-
-const say = (message) =>
+const createClient = () =>
 {
-    client.say(CHANNEL, message)
-} 
+    const client = new tmi.Client
+    (
+        {
+            connection: 
+            {
+                secure: true,
+                reconnect: true
+            },
+            identity:
+            {
+                username: process.env.BOT_USERNAME,
+                password: process.env.BOT_ACCESS_TOKEN
+            },
+            channels: [process.env.CHANNEL]
+        }
+    )
 
-const whisper = (username , message) =>
-{
-    client.whisper(username, message)
+    return client
 }
 
-const connect = () =>
-{
-    client.connect();
+
+const connectClientToChat = (channel, client, server, respoonToCommand) => {
+    client.on('message', (channel, tags, message, self) =>{
+        console.log(`${tags['display-name']}: ${message}`)
+
+        if(self || !message.startsWith('$')) {
+            return;
+        }
+
+        const args    = message.slice(1).split(' ')
+        const command = args.shift().toLowerCase()
+        const username    = tags.username
+
+        respoonToCommand(command, username, CHANNEL, args)
+    });
+
+    server.saveTrainers()
 }
 
 module.exports = 
 {
-    say     : (message) => { return say(message) },
-    whisper : (username, message) => { return whisper(usernaem, message) },
-    connect : () => { return connect() },
-    Client:  client
+    createClient:  createClient,
+    connectClientToChat: connectClientToChat
 }

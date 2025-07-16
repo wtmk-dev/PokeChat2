@@ -12,6 +12,7 @@ const respondToTrainerCommand = (command, username, channel, args) =>
     handelCreationState(command, username, channel, args)
 }
 
+
 const handelCreationState = (command, username, channel, args) =>
 {
     let isTrainer = args.server.has(username)
@@ -84,7 +85,7 @@ const setRegion = (command, trainer, channel, args) =>
         args.client.say(channel, 
         `@${trainer.username}, MorphinTime...\n
         So you are from ${region} PowerUpL! \n
-        Great to have you type $pkm to see your stats`);
+        Great to have you. Type $pkm in chat to see your stats`);
     }
 }
 
@@ -94,4 +95,5 @@ const rollForStartingPkm= (trainer) =>
     const roll =  Math.floor(Math.random() * startingPkmOptions.length)
     return startingPkm = startingPkmOptions[roll]
 }
+
 

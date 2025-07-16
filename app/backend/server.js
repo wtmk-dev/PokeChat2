@@ -9,7 +9,7 @@ const setClientToken = () => {
         json: true,
         body:{
             client_id: process.env.A_CLIENT_ID,
-            client_secret: process.env.A_SECRET,
+            client_secret: process.env.TWITCH_SECRET,
             grant_type: 'client_credentials',
             scope: 'viewing_activity_read'
         }
@@ -128,5 +128,5 @@ const getFollowers = () => {
 
 module.exports = 
 { 
-    
+    setClientToken : setClientToken
 }
