@@ -4,7 +4,7 @@ console.log("starting...")
 const game = require('./app/game/pokechat.js')
 
 console.log("game created...")
-let passedTest = game.test();
+let passedTest = game.test()
 
 if(passedTest)
 {

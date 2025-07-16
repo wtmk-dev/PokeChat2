@@ -22,12 +22,7 @@ const transferRank = 8
 const creationStates = {"type":1, "pkm":2, "getPkm":3,"done":4}
 Object.freeze(creationStates)
 
-const startingPokemon  = 
-{
-    0 : ['BULBASAUR','CHARMANDER','SQUIRTLE'],
-    1 : ['CYNDAQUIL','CHIKORITA','TOTODILE'],
-    2 : ['TORCHIC','MUDKIP','TREECKO']
-}
+
 
 const startingItems = ['XATTACK','XSPATK','DIREHIT','HYPERPOTION']
 

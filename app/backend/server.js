@@ -3,12 +3,6 @@ const request = require('request')
 const fs = require('fs')
 const {ClientCredentialsAuthProvider} = require('twitch-auth')
 
-const trainers    = require('./data/trainers.json')
-const encounters  = [ ]
-let token
-
-const trainerPath = __dirname + '/data/trainers.json'
-
 const setClientToken = () => {
     const options = {
         url: `https://id.twitch.tv/oauth2/token`,
@@ -132,11 +126,7 @@ const getFollowers = () => {
     })
 }
 
-setTimeout( () => {
-    //loadTrainers()
-}, 800);
-
-module.exports = { 
-    trainers: trainers,
-    saveTrainers: () => { return saveTrainers() },
+module.exports = 
+{ 
+    
 }

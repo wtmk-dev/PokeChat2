@@ -9,7 +9,7 @@ const fs = require('fs')
 const clientId     = process.env.U_CLIENT_ID;
 const clientSecret = process.env.TWITCH_SECRET;
 const accessToken  = process.env.U_ACCESS_TOKEN;
-const CHANNEL      = 'aftereartharcade'
+const CHANNEL      = process.env.CHANNEL
 
 async function main(model, c, v)
 {

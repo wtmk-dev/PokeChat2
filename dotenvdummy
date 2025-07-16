@@ -1,7 +1,6 @@
 rename this file to .env and add the correct enviorment variables 
 
 CHANNEL =
-CHANNEL_ID = 
 C_ACCESS_TOKEN =
 BOT_USERNAME = 
 U_CLIENT_ID = 
