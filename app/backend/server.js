@@ -1,7 +1,11 @@
 require(`dotenv`).config()
 const request = require('request')
 const fs = require('fs')
+const struct = require("../game/data/struct")
 const {ClientCredentialsAuthProvider} = require('twitch-auth')
+
+const trainerPath = 'F:/trainers.json'
+const trainers = new Map();
 
 const setClientToken = () => {
     const options = {
@@ -37,31 +41,34 @@ const loadTrainers = () =>
     fs.readFile(trainerPath, (err, data) => {
 
         if (err) {
-          throw err; 
+            let t = struct.createTrainer()
+            t.username = "dumb"
+            trainers.set(t.username, t)
+            save()
+            console.log(data)
         }
     
         const savedData = data.toString()
         const trainersJSON = JSON.parse(savedData)
         const keys = Object.keys(trainersJSON)
 
+        console.log(trainersJSON)
+
         keys.forEach( key => {
             const trainer = 
             {
-                creationState : trainersJSON[key].creationState,
-                regionNumber : trainersJSON[key].regionNumber, // does not have a region set
                 username: trainersJSON[key].username,
-                type: trainersJSON[key].type, // not selected
-                pkm: trainersJSON[key].pkm,
-                items: trainersJSON[key].items,
+                creationState : trainersJSON[key].creationState, // 0 new - 1 pick region - 2 complete
+                regionNumber : trainersJSON[key].regionNumber, // -1 none - 0 kanto - 2 joto -3 hoenn
+                type: trainersJSON[key].type,
+                party : trainersJSON[key].party, // max 6
                 rank: trainersJSON[key].rank || 0,
                 coin: trainersJSON[key].coin || 0,
                 pkBalls: trainersJSON[key].pkBalls || 0,
+                tradeToken : trainersJSON[key].tradeToken|| 0,
+                evoToken: trainersJSON[key].evoToken || 0,
                 box: trainersJSON[key].box || [ ],
-                tt: trainersJSON[key].tt || 0, //trade tokens
-                evo: trainersJSON[key].evo || 0,
-                hasMedBag: trainersJSON[key].hasMedBag || false,
-                medbag: trainersJSON[key].medbag || { },
-                isInTrade: false,
+                encounter:  trainersJSON[key].box || ""
             }
 
             trainers[key] = trainer
@@ -126,26 +133,48 @@ const getFollowers = () => {
     })
 }
 
-const has = (user) =>
-{   
-    console.log(user)
-    return false
+const has = (username) =>
+{ 
+    console.log(trainers.has(username));
+    console.log(trainers)
+    return trainers.has(username)
 }
 
 const add = (user) =>
 {   
+    if(trainers.has(user.username))
+    {
+        trainers[user.username] = user
+    }else{
+        trainers.set(user.username, user)
+    }
+    
     console.log(user)
+    save()
 }
 
-const getTrainer = () =>
+const getTrainer = (username) =>
 {
-    return null
+    let hasTrainer = has(username)
+
+    if(hasTrainer)
+    {
+        return trainers.get(username)
+    }else{
+        let trainer = struct.createTrainer()
+        trainer.username = username;
+        add(trainer)
+        return getTrainer(username)
+    }
 }
 
 const save = () =>
 {
     console.log("save trainers")
+    saveTrainers();
 }
+
+loadTrainers()
 
 module.exports = 
 { 

@@ -9,28 +9,40 @@ const startingPokemon  =
 
 const respondToTrainerCommand = (command, username, channel, server, client, args) =>
 {
-    handelCreationState(command, username, channel, server, client, args)
+    let isTrainer = server.has(username)
+    let trainer
+
+    if(!isTrainer)
+    {
+        handelCreationState(command, username, channel, server, client, args)
+    }
+    else if(command == struct.createTrainerCommand)
+    {
+        handelShowStats(command, username, channel, server, client, args);
+    }
 }
 
+const handelShowStats = (command, username, channel, server, client, args) =>
+{
+    let regionPicked = 2
+    let trainer = server.getTrainer(username)
+    if(trainer.creationState == regionPicked)
+    {
+        console.log(trainer)
+    }
+}
 
 const handelCreationState = (command, username, channel, server, client, args) =>
 {
     console.log(command);
 
-    let isTrainer = server.has(username)
     let trainer;
 
-    if(!isTrainer)
-    {
-        const newTrainer = struct.createTrainer();
-        newTrainer.username = username;
-        newTrainer.creationState = 1;
-        server.add(newTrainer)
-        trainer = newTrainer;
-    }else
-    {
-        trainer = server.getTrainer(username)
-    }
+    const newTrainer = struct.createTrainer();
+    newTrainer.username = username;
+    newTrainer.creationState = 1;
+    server.add(newTrainer)
+    trainer = newTrainer;
 
     const pickRegionState = 1
     if(trainer.creationState == pickRegionState)
@@ -41,7 +53,7 @@ const handelCreationState = (command, username, channel, server, client, args) =
         }
         else
         {
-            setRegion(command, trainer, channel, args)
+            setRegion(command, trainer, channel, server, client, args)
         }
     }
 }
@@ -55,7 +67,7 @@ const pickRegion = (trainer, channel, client, args) =>
         $3 for HOENN!`);
 }
 
-const setRegion = (command, trainer, channel, server, args) =>
+const setRegion = (command, trainer, channel, server, client, args) =>
 {
     let regionSelected = false
     let kanto = "1"
