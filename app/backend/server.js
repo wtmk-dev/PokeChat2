@@ -126,7 +126,32 @@ const getFollowers = () => {
     })
 }
 
+const has = (user) =>
+{   
+    console.log(user)
+    return false
+}
+
+const add = (user) =>
+{   
+    console.log(user)
+}
+
+const getTrainer = () =>
+{
+    return null
+}
+
+const save = () =>
+{
+    console.log("save trainers")
+}
+
 module.exports = 
 { 
-    setClientToken : setClientToken
+    setClientToken : setClientToken,
+    has : has,
+    add : add,
+    getTrainer : getTrainer,
+    save : save
 }

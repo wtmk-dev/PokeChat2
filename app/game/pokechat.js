@@ -3,6 +3,7 @@ const struct = require("./data/struct")
 const tests = require("./tests/pokechatTests")
 const server = require("../backend/server")
 const client = require("../backend/client")
+const chatResponse = require("../game/function/chatResponse")
 
 const run = async () =>
 {
@@ -15,8 +16,11 @@ const run = async () =>
 
     await twitchClient.connect()
     console.log("client connected")
-
-    client.connectClientToChat(process.env.CHANNEL, twitchClient, server)
+    
+    client.connectClientToChat(process.env.CHANNEL, twitchClient, server, chatResponse.respondToTrainerCommand)
+    
+    //twitchClient.say(process.env.CHANNEL, "Hello world")
+    //console.log("client connected")
   }
   catch(err)
   {

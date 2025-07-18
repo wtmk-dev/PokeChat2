@@ -35,10 +35,11 @@ const connectClientToChat = (channel, client, server, respoonToCommand) => {
         const command = args.shift().toLowerCase()
         const username    = tags.username
 
-        respoonToCommand(command, username, CHANNEL, args)
+        
+        respoonToCommand(command, username, channel, server, client, args)
     });
 
-    server.saveTrainers()
+    //server.saveTrainers()
 }
 
 module.exports = 

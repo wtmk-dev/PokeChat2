@@ -25,7 +25,7 @@ const createTrainer = () =>
     return trainer;
 }
 
-const createTrainerCommand = "PKM"
+const createTrainerCommand = "pkm"
 
 module.exports = 
 {

@@ -7,30 +7,37 @@ const startingPokemon  =
     2 : ['TORCHIC','MUDKIP','TREECKO']
 }
 
-const respondToTrainerCommand = (command, username, channel, args) =>
+const respondToTrainerCommand = (command, username, channel, server, client, args) =>
 {
-    handelCreationState(command, username, channel, args)
+    handelCreationState(command, username, channel, server, client, args)
 }
 
 
-const handelCreationState = (command, username, channel, args) =>
+const handelCreationState = (command, username, channel, server, client, args) =>
 {
-    let isTrainer = args.server.has(username)
+    console.log(command);
+
+    let isTrainer = server.has(username)
+    let trainer;
 
     if(!isTrainer)
     {
         const newTrainer = struct.createTrainer();
         newTrainer.username = username;
         newTrainer.creationState = 1;
-        args.server.add(newTrainer)
+        server.add(newTrainer)
+        trainer = newTrainer;
+    }else
+    {
+        trainer = server.getTrainer(username)
     }
 
-    const pickRegion = 1
-    if(trainer.creationState == pickRegion)
+    const pickRegionState = 1
+    if(trainer.creationState == pickRegionState)
     {
         if(command == struct.createTrainerCommand)
         {
-            pickRegion(trainer, channel, args)
+            pickRegion(trainer, channel, client, args)
         }
         else
         {
@@ -39,16 +46,16 @@ const handelCreationState = (command, username, channel, args) =>
     }
 }
 
-const pickRegion = (trainer, channel, args) => 
+const pickRegion = (trainer, channel, client, args) => 
 {
-    args.client.say(channel, 
+    client.say(channel, 
         `@${trainer.username}, Welcome to Pokechat!\n What Region are you from reply\n
         $1 for KANTO\n 
         $2 for JOHTO\n
         $3 for HOENN!`);
 }
 
-const setRegion = (command, trainer, channel, args) =>
+const setRegion = (command, trainer, channel, server, args) =>
 {
     let regionSelected = false
     let kanto = "1"
@@ -81,11 +88,13 @@ const setRegion = (command, trainer, channel, args) =>
         trainer.creationState = 2
         trainer.party.push(startingPkm)
 
-        args.server.save()
-        args.client.say(channel, 
+        server.save()
+        client.say(channel, 
         `@${trainer.username}, MorphinTime...\n
         So you are from ${region} PowerUpL! \n
         Great to have you. Type $pkm in chat to see your stats`);
+
+        console.log(trainer)
     }
 }
 
@@ -96,4 +105,7 @@ const rollForStartingPkm= (trainer) =>
     return startingPkm = startingPkmOptions[roll]
 }
 
-
+module.exports = 
+{
+    respondToTrainerCommand : respondToTrainerCommand
+}
