@@ -18,6 +18,8 @@
   "homepage": "https://github.com/wtmk-dev/PokeChat2#readme",
   "description": "",
   "dependencies": {
+    "@twurple/api": "^7.3.0",
+    "@twurple/pubsub": "^7.3.0",
     "dotenv": "^17.2.0",
     "tmi": "^0.2.2",
     "tmi.js": "^1.8.5",

@@ -7,6 +7,9 @@ const startingPokemon  =
     2 : ['TORCHIC','MUDKIP','TREECKO']
 }
 
+const pickRegionState = 1
+const createStateComplete = 2
+
 const respondToTrainerCommand = (command, username, channel, server, client, args) =>
 {
     let isTrainer = server.has(username)
@@ -15,21 +18,32 @@ const respondToTrainerCommand = (command, username, channel, server, client, arg
     if(!isTrainer)
     {
         handelCreationState(command, username, channel, server, client, args)
-    }
-    else if(command == struct.createTrainerCommand)
+    }else
     {
-        handelShowStats(command, username, channel, server, client, args);
+        trainer = server.getTrainer(username)
+        console.log(trainer.creationState)
+        console.log(command)
+        if(trainer.creationState === pickRegionState)
+        {
+            handelPickRegionState(command, trainer, channel, server, client, args)
+        }
+        else if (trainer.creationstate == createStateComplete)
+        {
+            console.log(command + " in creationState")
+            handelShowStats(command, trainer, channel, server, client, args)
+        }
     }
+
 }
 
-const handelShowStats = (command, username, channel, server, client, args) =>
+const handelShowStats = (command, trainer, channel, server, client, args) =>
 {
-    let regionPicked = 2
-    let trainer = server.getTrainer(username)
-    if(trainer.creationState == regionPicked)
-    {
-        console.log(trainer)
-    }
+    let total = trainer.party.length
+    client.say(channel, 
+        `@ MorphinTime ${trainer.username} 
+        - Rank: ${trainer.rank} 
+        - PKBalls: ${trainer.rank}
+        - PKCaptured: ${total}`);
 }
 
 const handelCreationState = (command, username, channel, server, client, args) =>
@@ -44,18 +58,20 @@ const handelCreationState = (command, username, channel, server, client, args) =
     server.add(newTrainer)
     trainer = newTrainer;
 
-    const pickRegionState = 1
-    if(trainer.creationState == pickRegionState)
+    handelPickRegionState(command, trainer, channel, server, client, args)
+}
+
+const handelPickRegionState = (command, trainer, channel, server, client, args) =>
+{
+    console.log(command)
+    if(command === struct.createTrainerCommand)
     {
-        if(command == struct.createTrainerCommand)
-        {
-            pickRegion(trainer, channel, client, args)
-        }
-        else
-        {
-            setRegion(command, trainer, channel, server, client, args)
-        }
+        pickRegion(trainer, channel, client, args)
+    }else
+    {
+        setRegion (command, trainer, channel, server, client, args)
     }
+    
 }
 
 const pickRegion = (trainer, channel, client, args) => 
@@ -110,7 +126,7 @@ const setRegion = (command, trainer, channel, server, client, args) =>
     }
 }
 
-const rollForStartingPkm= (trainer) =>
+const rollForStartingPkm = (trainer) =>
 {
     let startingPkmOptions = startingPokemon[trainer.regionNumber]
     const roll =  Math.floor(Math.random() * startingPkmOptions.length)

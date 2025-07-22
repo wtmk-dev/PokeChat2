@@ -5,7 +5,8 @@ const struct = require("../game/data/struct")
 const {ClientCredentialsAuthProvider} = require('twitch-auth')
 
 const trainerPath = 'F:/trainers.json'
-const trainers = new Map();
+let trainers = new Map();
+let trainersOnAdventure = []
 
 const setClientToken = () => {
     const options = {
@@ -36,54 +37,37 @@ const loadPokechatEncoutner = () =>
     }
 }
 
-const loadTrainers = () =>
-{
+const loadTrainers = () => {
     fs.readFile(trainerPath, (err, data) => {
-
         if (err) {
-            let t = struct.createTrainer()
-            t.username = "dumb"
-            trainers.set(t.username, t)
-            save()
-            console.log(data)
+            console.error("Error loading trainers, initializing new one.");
+            const t = struct.createTrainer();
+            t.username = "dumb";
+            trainers.set(t.username, t);
+            saveTrainers();
+            return;
         }
-    
-        const savedData = data.toString()
-        const trainersJSON = JSON.parse(savedData)
-        const keys = Object.keys(trainersJSON)
 
-        console.log(trainersJSON)
+        try {
+            const jsonArray = JSON.parse(data.toString());
+            trainers = new Map(jsonArray); // Rehydrate the map
+            console.log("Trainers loaded");
+        } catch (e) {
+            console.error("Failed to parse trainers:", e);
+        }
+    });
+};
 
-        keys.forEach( key => {
-            const trainer = 
-            {
-                username: trainersJSON[key].username,
-                creationState : trainersJSON[key].creationState, // 0 new - 1 pick region - 2 complete
-                regionNumber : trainersJSON[key].regionNumber, // -1 none - 0 kanto - 2 joto -3 hoenn
-                type: trainersJSON[key].type,
-                party : trainersJSON[key].party, // max 6
-                rank: trainersJSON[key].rank || 0,
-                coin: trainersJSON[key].coin || 0,
-                pkBalls: trainersJSON[key].pkBalls || 0,
-                tradeToken : trainersJSON[key].tradeToken|| 0,
-                evoToken: trainersJSON[key].evoToken || 0,
-                box: trainersJSON[key].box || [ ],
-                encounter:  trainersJSON[key].box || ""
-            }
-
-            trainers[key] = trainer
-        })
-
-        console.log('trainers loaded')
-    })    
-}
-
-const saveTrainers = () =>
-{
+const saveTrainers = () => {
     console.log(`Saving trainers...`);
-    const trainersJson = JSON.stringify(trainers)
-    fs.writeFile(trainerPath, trainersJson, ()=> { return console.log('Trainers Saved') })
-}
+    
+    // Convert the Map to an array of [key, value] pairs
+    const trainersJson = JSON.stringify([...trainers], null, 2);
+    
+    fs.writeFile(trainerPath, trainersJson, () => {
+        console.log('Trainers Saved');
+    });
+};
 
 const getFollowers = () => {
     console.log(`getting followers`)
@@ -135,8 +119,8 @@ const getFollowers = () => {
 
 const has = (username) =>
 { 
-    console.log(trainers.has(username));
-    console.log(trainers)
+    //console.log(trainers.has(username));
+    //console.log(trainers)
     return trainers.has(username)
 }
 
@@ -170,8 +154,18 @@ const getTrainer = (username) =>
 
 const save = () =>
 {
-    console.log("save trainers")
+    //console.log("save trainers")
     saveTrainers();
+}
+
+const addTrainerToAdventure = (trainer) =>
+{
+    trainersOnAdventure.push(trainer)
+}
+
+const getTrainerToAdventure = () =>
+{
+    return trainersOnAdventure
 }
 
 loadTrainers()
@@ -182,5 +176,8 @@ module.exports =
     has : has,
     add : add,
     getTrainer : getTrainer,
-    save : save
+    save : save,
+    addTrainerToAdventure : addTrainerToAdventure,
+    getTrainerToAdventure : getTrainerToAdventure
+
 }

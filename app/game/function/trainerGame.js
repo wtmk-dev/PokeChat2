@@ -1,8 +1,66 @@
-const pokemonData = require('pokemongo-json-pokedex/output/pokemon.json')
+//const pokemonData = require('pokemongo-json-pokedex/output/pokemon.json')
 
 const fs = require('fs')
 
-let pokemonJson = require(__dirname + '/pokechatEncounters.json')
+let pokemonJson = require("../data/pokechatEncounters.json")
+let encounterRank = 0
+let adventureLobyTimer = 60000
+let adventureTimer = 30000
+let encoutnerStepTimer = 10000
+
+const run = (channel, client, server) =>
+{
+    client.say(channel, "test 1")
+    
+    setTimeout(() => 
+    {
+        console.log("Start Adventure Lobby")
+        startAdventrueLobby(ch, c, s)
+    }, adventureTimer)
+}
+
+const startAdventrueLobby = (channel, client, server) =>
+{
+    client.say(channel,
+        "ATTENTION PokeChat Trainers." +
+        "an adventrue will start in the next 30 seconds " +
+        "enter $j to Join the adventer $pkm to create a trainer"
+    )
+
+    setTimeout(() =>
+    {
+        console.log("Starting adventure...")
+        startAdventrue(channel, client, server)
+    },adventureTimer)
+}
+
+const startAdventrue = (channel, client, server) =>
+{
+    let numberOfTrainers = server.getTrainerToAdventure().length
+    client.say(channel,
+        `ATTENTION PokeChat Trainers. 
+         Adventrue starting in ${zone}, 
+         with ${numberOfTrainers}`
+    )
+
+    setTimeout(()=>
+    {
+        startEncounter(channel, client, server)
+    },encoutnerStepTimer)
+}
+
+const startEncounter = (channel, client, server) =>
+{
+    let type = getEncounterType()
+    console.log(type)
+    client.say(channel,
+        `encounter not emplemented ${type}`)
+}
+
+const encounterPokemon = (channel, client, server) =>
+{
+    client.say(channel, "PKM Trainers!")
+}
 
 const encounters = 
 {
@@ -360,5 +418,6 @@ module.exports =
     getExtraEncounter: (reward, rank) =>{return getExtraEncounter(reward, rank)},
     getEvolved: (pkm) => {return getEvolved(pkm)},
     getIvBoost: () => {return getIvBoost()},
-    random: (die) => {return random(die)}
+    random: (die) => {return random(die)},
+    run : (channel, client, server) => {return run(channel, client, server)}
 }
