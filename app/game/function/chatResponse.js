@@ -23,11 +23,12 @@ const respondToTrainerCommand = (command, username, channel, server, client, arg
         trainer = server.getTrainer(username)
         console.log(trainer.creationState)
         console.log(command)
+
         if(trainer.creationState === pickRegionState)
         {
             handelPickRegionState(command, trainer, channel, server, client, args)
         }
-        else if (trainer.creationstate == createStateComplete)
+        else if (trainer.creationState === createStateComplete)
         {
             console.log(command + " in creationState")
             handelShowStats(command, trainer, channel, server, client, args)
@@ -40,10 +41,10 @@ const handelShowStats = (command, trainer, channel, server, client, args) =>
 {
     let total = trainer.party.length
     client.say(channel, 
-        `@ MorphinTime ${trainer.username} 
+        `@${trainer.username}..MorphinTime  
         - Rank: ${trainer.rank} 
         - PKBalls: ${trainer.rank}
-        - PKCaptured: ${total}`);
+        - PKCaptured: ${total}`)
 }
 
 const handelCreationState = (command, username, channel, server, client, args) =>

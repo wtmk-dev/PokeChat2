@@ -1,4 +1,5 @@
 const tmi = require('tmi.js')
+const game = require("../game/function/trainerGame")
 
 const createClient = () =>
 {
@@ -22,8 +23,9 @@ const createClient = () =>
     return client
 }
 
+const connectClientToChat = (channel, client, server, respoonToCommand) => {    
+    game.run(channel,client,server)
 
-const connectClientToChat = (channel, client, server, respoonToCommand) => {
     client.on('message', (channel, tags, message, self) =>{
         console.log(`${tags['display-name']}: ${message}`)
 
@@ -33,13 +35,10 @@ const connectClientToChat = (channel, client, server, respoonToCommand) => {
 
         const args    = message.slice(1).split(' ')
         const command = args.shift().toLowerCase()
-        const username    = tags.username
+        const username = tags.username
 
-        
         respoonToCommand(command, username, channel, server, client, args)
     });
-
-    //server.saveTrainers()
 }
 
 module.exports = 

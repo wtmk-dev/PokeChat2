@@ -4,7 +4,6 @@ const tests = require("./tests/pokechatTests")
 const server = require("../backend/server")
 const client = require("../backend/client")
 const chatResponse = require("../game/function/chatResponse")
-const game = require("../game/function/trainerGame")
 
 const run = async () =>
 {
@@ -19,7 +18,6 @@ const run = async () =>
     console.log("client connected")
     
     client.connectClientToChat(process.env.CHANNEL, twitchClient, server, chatResponse.respondToTrainerCommand)
-    game.run(process.env.CHANNE, twitchClient, server)
   }
   catch(err)
   {

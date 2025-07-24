@@ -6,9 +6,10 @@ const {ClientCredentialsAuthProvider} = require('twitch-auth')
 
 const trainerPath = 'F:/trainers.json'
 let trainers = new Map();
-let trainersOnAdventure = []
+let trainersOnAdventure = new Map();
 
-const setClientToken = () => {
+const setClientToken = () => 
+{
     const options = {
         url: `https://id.twitch.tv/oauth2/token`,
         json: true,
@@ -37,7 +38,8 @@ const loadPokechatEncoutner = () =>
     }
 }
 
-const loadTrainers = () => {
+const loadTrainers = () => 
+{
     fs.readFile(trainerPath, (err, data) => {
         if (err) {
             console.error("Error loading trainers, initializing new one.");
@@ -58,7 +60,8 @@ const loadTrainers = () => {
     });
 };
 
-const saveTrainers = () => {
+const saveTrainers = () => 
+{
     console.log(`Saving trainers...`);
     
     // Convert the Map to an array of [key, value] pairs
@@ -69,7 +72,8 @@ const saveTrainers = () => {
     });
 };
 
-const getFollowers = () => {
+const getFollowers = () => 
+{
     console.log(`getting followers`)
     const options = {
         url: `https://api.twitch.tv/helix/users/follows?to_id=${process.env.CHANNEL_ID}&first=100`,
@@ -160,12 +164,29 @@ const save = () =>
 
 const addTrainerToAdventure = (trainer) =>
 {
-    trainersOnAdventure.push(trainer)
+    if(trainersOnAdventure.has(trainer.username))
+    {
+        trainersOnAdventure[trainer.username] = trainer
+    }else
+    {
+        trainersOnAdventure.set(trainer.username, trainer)
+    }
+    
 }
 
-const getTrainerToAdventure = () =>
+const getTrainersOnAdventure = () =>
 {
     return trainersOnAdventure
+}
+
+const clearTrainersOnAdventure = () =>
+{
+    trainersOnAdventure.clear()
+}
+
+const isTrainerOnAdventure = (username) =>
+{
+    return trainersOnAdventure.has(has)
 }
 
 loadTrainers()
@@ -177,7 +198,7 @@ module.exports =
     add : add,
     getTrainer : getTrainer,
     save : save,
+    clearTrainersOnAdventure : clearTrainersOnAdventure,
     addTrainerToAdventure : addTrainerToAdventure,
-    getTrainerToAdventure : getTrainerToAdventure
-
+    getTrainersOnAdventure : getTrainersOnAdventure
 }

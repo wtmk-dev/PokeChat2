@@ -5,32 +5,31 @@ const fs = require('fs')
 let pokemonJson = require("../data/pokechatEncounters.json")
 let encounterRank = 0
 let adventureLobyTimer = 60000
-let adventureTimer = 30000
+let adventureTimer = 60000
 let encoutnerStepTimer = 10000
 
 const run = (channel, client, server) =>
 {
-    client.say(channel, "test 1")
-    
     setTimeout(() => 
     {
         console.log("Start Adventure Lobby")
-        startAdventrueLobby(ch, c, s)
+        startAdventrueLobby(channel, client, server)
     }, adventureTimer)
 }
 
 const startAdventrueLobby = (channel, client, server) =>
 {
+    server.clearTrainersOnAdventure()
     client.say(channel,
-        "ATTENTION PokeChat Trainers." +
-        "an adventrue will start in the next 30 seconds " +
+        "ATTENTION PokeChat Trainers " +
+        "an adventrue will start in the next 60 seconds " +
         "enter $j to Join the adventer $pkm to create a trainer"
     )
 
     setTimeout(() =>
     {
         console.log("Starting adventure...")
-        startAdventrue(channel, client, server)
+        //startAdventrue(channel, client, server)
     },adventureTimer)
 }
 

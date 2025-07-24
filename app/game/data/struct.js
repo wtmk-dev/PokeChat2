@@ -26,9 +26,11 @@ const createTrainer = () =>
 }
 
 const createTrainerCommand = "pkm"
+const joinAdventrueCommand = "j"
 
 module.exports = 
 {
     createTrainer : createTrainer,
-    createTrainerCommand : createTrainerCommand
+    createTrainerCommand : createTrainerCommand,
+    joinAdventrueCommand : joinAdventrueCommand
 }
