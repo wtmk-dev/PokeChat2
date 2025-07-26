@@ -7,6 +7,11 @@ const {ClientCredentialsAuthProvider} = require('twitch-auth')
 const trainerPath = 'F:/trainers.json'
 let trainers = new Map();
 let trainersOnAdventure = new Map();
+let adventureState = 0 
+
+const adventureStateNone = 0
+const adventureStateQueuing = 1
+const adventureStateRunning = 2
 
 const setClientToken = () => 
 {
@@ -164,12 +169,15 @@ const save = () =>
 
 const addTrainerToAdventure = (trainer) =>
 {
-    if(trainersOnAdventure.has(trainer.username))
+    if(adventureState === adventureStateQueuing)
     {
-        trainersOnAdventure[trainer.username] = trainer
-    }else
-    {
-        trainersOnAdventure.set(trainer.username, trainer)
+        if(trainersOnAdventure.has(trainer.username))
+        {
+            trainersOnAdventure[trainer.username] = trainer
+        }else
+        {
+            trainersOnAdventure.set(trainer.username, trainer)
+        }
     }
     
 }
@@ -189,6 +197,11 @@ const isTrainerOnAdventure = (username) =>
     return trainersOnAdventure.has(has)
 }
 
+const setAdventureState = (state) =>
+{
+    adventureState = state
+}
+
 loadTrainers()
 
 module.exports = 
@@ -200,5 +213,10 @@ module.exports =
     save : save,
     clearTrainersOnAdventure : clearTrainersOnAdventure,
     addTrainerToAdventure : addTrainerToAdventure,
-    getTrainersOnAdventure : getTrainersOnAdventure
+    getTrainersOnAdventure : getTrainersOnAdventure,
+    setAdventureState : setAdventureState,
+    adventureStateNone : adventureStateNone,
+    adventureStateQueuing : adventureStateQueuing,
+    adventureStateRunning : adventureStateRunning
+
 }

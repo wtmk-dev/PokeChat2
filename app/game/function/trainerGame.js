@@ -20,6 +20,8 @@ const run = (channel, client, server) =>
 const startAdventrueLobby = (channel, client, server) =>
 {
     server.clearTrainersOnAdventure()
+    server.setAdventureState(server.adventureStateQueuing)
+
     client.say(channel,
         "ATTENTION PokeChat Trainers " +
         "an adventrue will start in the next 60 seconds " +
@@ -31,6 +33,15 @@ const startAdventrueLobby = (channel, client, server) =>
         console.log("Starting adventure...")
         //startAdventrue(channel, client, server)
     },adventureTimer)
+}
+
+const voteOnZone = (channel, chilent, server) =>
+{
+    client.say(channel,
+        `Adventrue starting soon. Please vote for what zone the the 
+        adventrue will take place in. $s for Sky, $d for Dark Cave,
+        $t for Tall Grass, $w for Water.... anyone in chat can vote`
+    )
 }
 
 const startAdventrue = (channel, client, server) =>

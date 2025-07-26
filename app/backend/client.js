@@ -38,7 +38,7 @@ const connectClientToChat = (channel, client, server, respoonToCommand) => {
         const username = tags.username
 
         respoonToCommand(command, username, channel, server, client, args)
-    });
+    })
 }
 
 module.exports = 

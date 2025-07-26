@@ -18,30 +18,49 @@ const respondToTrainerCommand = (command, username, channel, server, client, arg
     if(!isTrainer)
     {
         handelCreationState(command, username, channel, server, client, args)
-    }else
+    }
+    else 
     {
         trainer = server.getTrainer(username)
+
         console.log(trainer.creationState)
         console.log(command)
 
         if(trainer.creationState === pickRegionState)
         {
-            handelPickRegionState(command, trainer, channel, server, client, args)
+            let kanto = "1"
+            let johto = "2"
+            let hoenn = "3"
+
+            if(command === kanto || command === johto || command === hoenn)
+            {
+                setRegion(command, trainer, channel, server, client, args)
+            }else
+            {
+                pickRegion(trainer, channel, client, args)
+            }
         }
-        else if (trainer.creationState === createStateComplete)
+        else if(trainer.creationState === createStateComplete)
         {
             console.log(command + " in creationState")
-            handelShowStats(command, trainer, channel, server, client, args)
-        }
+            
+            if(command === struct.createTrainerCommand)
+            {
+                handelShowStats(command, trainer, channel, server, client, args)
+            }
+            else if(command === struct.joinAdventrueCommand)
+            {
+                server.addTrainerToAdventure(trainer)
+            }
+        } 
     }
-
 }
 
 const handelShowStats = (command, trainer, channel, server, client, args) =>
 {
     let total = trainer.party.length
     client.say(channel, 
-        `@${trainer.username}..MorphinTime  
+        `@${trainer.username}...MorphinTime  
         - Rank: ${trainer.rank} 
         - PKBalls: ${trainer.rank}
         - PKCaptured: ${total}`)
@@ -60,19 +79,6 @@ const handelCreationState = (command, username, channel, server, client, args) =
     trainer = newTrainer;
 
     handelPickRegionState(command, trainer, channel, server, client, args)
-}
-
-const handelPickRegionState = (command, trainer, channel, server, client, args) =>
-{
-    console.log(command)
-    if(command === struct.createTrainerCommand)
-    {
-        pickRegion(trainer, channel, client, args)
-    }else
-    {
-        setRegion (command, trainer, channel, server, client, args)
-    }
-    
 }
 
 const pickRegion = (trainer, channel, client, args) => 
