@@ -4,10 +4,11 @@ const fs = require('fs')
 const struct = require("../game/data/struct")
 const {ClientCredentialsAuthProvider} = require('twitch-auth')
 
-const trainerPath = 'F:/trainers.json'
+const trainerPath = 'Z:/trainers.json'
 let trainers = new Map();
 let trainersOnAdventure = new Map();
-let adventureState = 0 
+let adventureState = 0
+let adventureZone = ""
 
 const adventureStateNone = 0
 const adventureStateQueuing = 1
@@ -202,6 +203,83 @@ const setAdventureState = (state) =>
     adventureState = state
 }
 
+const voteCommand =
+[
+    "t","w","s","d"
+]
+
+const isVoteCommand = (command) =>
+{
+    let isTrue = false
+    for(let i = 0; i < voteCommand.length; i++)
+    {
+        if(command === voteCommand[i])
+        {
+            isTrue = true
+            break
+        }
+    }
+
+    return isTrue
+}
+
+let tVote = 0
+let wVote = 0
+let sVote = 0
+let dVote = 0
+
+const addVote = (command) =>
+{
+    if(adventureState != adventureStateNone)
+    {
+        if(command === "t")
+        {
+            tVote++
+        }
+        else if(command === "w")
+        {
+            wVote++
+        }
+        else if(command === "s")
+        {
+            sVote++
+        }
+        else if(command === "d")
+        {
+            dVote++
+        }
+    }
+}
+
+const getZone = () =>
+{
+    let zone = new Map()
+
+    zone.set("Tall Grass", tVote)
+    zone.set("Water", wVote)
+    zone.set("Sky", sVote)
+    zone.set("Dark Cave", dVote)
+
+    let sortedE = [...zone.entries()].sort((a,b) => b[1] - a[1])
+    let sortedM = new Map(sortedE)
+    console.log(sortedM)
+
+    let next = sortedM.next()
+    console.log(next)
+
+    tVote = 0
+    wVote = 0
+    sVote = 0
+    dVote = 0
+
+    return next
+}
+
+const getAdventureRank = () =>
+{
+    return 0
+}
+
 loadTrainers()
 
 module.exports = 
@@ -217,6 +295,10 @@ module.exports =
     setAdventureState : setAdventureState,
     adventureStateNone : adventureStateNone,
     adventureStateQueuing : adventureStateQueuing,
-    adventureStateRunning : adventureStateRunning
+    adventureStateRunning : adventureStateRunning,
+    isVoteCommand : isVoteCommand,
+    addVote : addVote,
+    getZone : getZone,
+    getAdventureRank : getAdventureRank
 
 }

@@ -12,7 +12,23 @@ const run = (channel, client, server) =>
 {
     setTimeout(() => 
     {
-        console.log("Start Adventure Lobby")
+        console.log("Start Adventure vote")
+        server.setAdventureState(server.adventureStateQueuing)
+        voteOnZone(channel, client, server)
+    }, adventureTimer)
+}
+
+const voteOnZone = (channel, client, server) =>
+{
+    client.say(channel,
+        `Adventrue starting soon. Please vote for what zone the the 
+        adventrue will take place in. $s for Sky, $d for Dark Cave,
+        $t for Tall Grass, $w for Water.... anyone in chat can vote`
+    )
+
+    setTimeout(() =>
+    {
+        console.log("start adventrue lobby")
         startAdventrueLobby(channel, client, server)
     }, adventureTimer)
 }
@@ -20,43 +36,37 @@ const run = (channel, client, server) =>
 const startAdventrueLobby = (channel, client, server) =>
 {
     server.clearTrainersOnAdventure()
-    server.setAdventureState(server.adventureStateQueuing)
 
     client.say(channel,
-        "ATTENTION PokeChat Trainers " +
-        "an adventrue will start in the next 60 seconds " +
-        "enter $j to Join the adventer $pkm to create a trainer"
+        `ATTENTION PokeChat Trainers!!
+        An ADVENTURE is starting soon...
+        enter $j to Join the adventer $pkm to create a trainer`
     )
 
     setTimeout(() =>
     {
-        console.log("Starting adventure...")
-        //startAdventrue(channel, client, server)
+        console.log("start adventure")
+        startAdventrue(channel, client, server)
     },adventureTimer)
-}
-
-const voteOnZone = (channel, chilent, server) =>
-{
-    client.say(channel,
-        `Adventrue starting soon. Please vote for what zone the the 
-        adventrue will take place in. $s for Sky, $d for Dark Cave,
-        $t for Tall Grass, $w for Water.... anyone in chat can vote`
-    )
 }
 
 const startAdventrue = (channel, client, server) =>
 {
     let numberOfTrainers = server.getTrainerToAdventure().length
+    let adventrueRank = server.getAdventureRank()
+    let zone = server.getZone()
+    server.setAdventureState(server.adventureStateRunning)
+
     client.say(channel,
         `ATTENTION PokeChat Trainers. 
-         Adventrue starting in ${zone}, 
-         with ${numberOfTrainers}`
+         RANK ${adventrueRank} Adventrue is starting
+         in ${zone.key} with ${numberOfTrainers}`
     )
 
     setTimeout(()=>
     {
-        startEncounter(channel, client, server)
-    },encoutnerStepTimer)
+        console.log("Start Encounter")
+    },adventureTimer)
 }
 
 const startEncounter = (channel, client, server) =>

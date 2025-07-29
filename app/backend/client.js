@@ -24,7 +24,7 @@ const createClient = () =>
 }
 
 const connectClientToChat = (channel, client, server, respoonToCommand) => {    
-    game.run(channel,client,server)
+    //game.run(channel,client,server)
 
     client.on('message', (channel, tags, message, self) =>{
         console.log(`${tags['display-name']}: ${message}`)

@@ -97,20 +97,6 @@ const getMeanRequirements = (badges) =>
     }
 }
 
-const getIV = (rank, mod) =>
-{
-    let min = (rank + (2 * mod)) / 4
-    let max = (rank + (2 * mod)) / 8
-    min = Math.ceil(min)
-    max = Math.ceil(max)
-    let iv = clamp(31,min,max)
-    if(iv > 31)
-    {
-        iv = 31
-    }
-    return iv
-}
-
 let data = ""
 
 const buildTrainers = (k) =>
@@ -158,44 +144,4 @@ const buildTrainers = (k) =>
     })
 }
 
-const buildTrainerPool = () =>
-{
-    let meta = "def getArcadians\n"
-    meta += `   return [ ` 
-
-    keys.forEach((k)=>{
-        meta += `"${k}",`
-    })
-
-    let m2 = meta.slice(0, -1);
-    
-    m2 += " ]\n"
-    m2 += "end"
-    return m2
-}
-
-const getFemales = () =>
-{
-    let map = "def getFemales\n"
-    map += `    return [ `
-
-    keys.forEach((user)=>{
-        const td = trainers[user]
-        let sex = td.type != 1 ? true : false
-        if(sex)
-        {
-            map += `"${user}",`
-        }
-    })
-
-    let m2 = map.slice(0, -1);
-    
-    m2 += " ]\n"
-    m2 += "end"
-    return m2
-}
-
 buildTrainers(keys)
-
-fs.writeFile("./trainers.txt",data,()=>{console.log("JOBS DONE!")})
-//console.log(buildTrainerPool())

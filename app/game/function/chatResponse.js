@@ -52,7 +52,11 @@ const respondToTrainerCommand = (command, username, channel, server, client, arg
             {
                 server.addTrainerToAdventure(trainer)
             }
-        } 
+            else if(server.isVoteCommand(command))
+            {
+                server.addVote(command)
+            }
+        }
     }
 }
 

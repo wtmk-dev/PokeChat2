@@ -1,8 +1,5 @@
 rename this file to .env and add the correct enviorment variables 
 
-CHANNEL =
-C_ACCESS_TOKEN =
+CHANNEL = 
 BOT_USERNAME = 
-U_CLIENT_ID = 
-U_ACCESS_TOKEN = 
-TWITCH_SECRET = 
+BOT_ACCESS_TOKEN = 
