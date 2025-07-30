@@ -1,21 +1,56 @@
-//const pokemonData = require('pokemongo-json-pokedex/output/pokemon.json')
-
 const fs = require('fs')
 
 let pokemonJson = require("../data/pokechatEncounters.json")
-let encounterRank = 0
-let adventureLobyTimer = 60000
+const { channel } = require('diagnostics_channel')
+
+let adventureTimerMin = 100000
+let adventureTimerMax = 300000
+
 let adventureTimer = 60000
-let encoutnerStepTimer = 10000
+
+let adventureTimerStep = 60000
+let encountersCompleted = 0
 
 const run = (channel, client, server) =>
 {
+    adventureTimer = server.getRandomInt(adventureTimerMin, adventureTimerMax)
+    encountersCompleted = 0
+    
     setTimeout(() => 
     {
-        console.log("Start Adventure vote")
+        console.log("award encounter token")
         server.setAdventureState(server.adventureStateQueuing)
-        voteOnZone(channel, client, server)
+        awardEncounterTokens(channel, client, server)
     }, adventureTimer)
+}
+
+const awardEncounterTokens = (channel, client, server) =>
+{
+    let trainers = server.getTrainersOnAdventure()
+    let time = 5000
+
+    client.say(channel,
+            `Type $pkm to join PokeChat!`)
+
+    for(const [key, value] of trainers)
+    {
+        value.tradeToken++
+        time + 1000
+
+        setTimeout(() => 
+        {
+            client.say(channel,
+            `@${value.username} gained an Encounter token`)
+            server.save()
+        }, time)
+    }
+
+    setTimeout(() => 
+    {
+        client.say(channel,
+        `Type $t, $d, $w or $s to start an encounter`)
+        run(channel, client, server)
+    }, time * trainers.size)
 }
 
 const voteOnZone = (channel, client, server) =>
@@ -30,7 +65,7 @@ const voteOnZone = (channel, client, server) =>
     {
         console.log("start adventrue lobby")
         startAdventrueLobby(channel, client, server)
-    }, adventureTimer)
+    }, adventureTimerStep)
 }
 
 const startAdventrueLobby = (channel, client, server) =>
@@ -46,40 +81,121 @@ const startAdventrueLobby = (channel, client, server) =>
     setTimeout(() =>
     {
         console.log("start adventure")
-        startAdventrue(channel, client, server)
-    },adventureTimer)
+        let numberOfTrainers = server.getTrainersOnAdventure().size
+
+        if(numberOfTrainers > 0)
+        {
+            startAdventrue(channel, client, server)
+        }else
+        {
+            let zone = server.getZone()[0]
+            server.setAdventureState(server.adventureStateNone)
+            client.say(channel,
+            `No trainers joined adventure`
+            )
+
+            run(channel, client, server)
+        }
+
+    },adventureTimerStep)
 }
 
 const startAdventrue = (channel, client, server) =>
 {
-    let numberOfTrainers = server.getTrainerToAdventure().length
+    let numberOfTrainers = server.getTrainersOnAdventure().size
+    let ts = "trainer"
+
+    if(numberOfTrainers > 1)
+    {
+        ts += "s"
+    }
+
     let adventrueRank = server.getAdventureRank()
-    let zone = server.getZone()
+    let zone = server.getZone()[0]
+    let balls = server.awardTrainersBalls(adventrueRank)
+
     server.setAdventureState(server.adventureStateRunning)
 
     client.say(channel,
         `ATTENTION PokeChat Trainers. 
          RANK ${adventrueRank} Adventrue is starting
-         in ${zone.key} with ${numberOfTrainers}`
+         in ${zone} with ${numberOfTrainers} ${ts}`
+    )
+
+    client.say(channel, 
+        `all trainers on adventure will recieve ${balls} PokeBalls`
     )
 
     setTimeout(()=>
     {
-        console.log("Start Encounter")
-    },adventureTimer)
+        console.log("Prep Adventure")
+        adventurePrep(channel, client, server, adventrueRank, zone)
+    }, adventureTimerStep / 4)
 }
 
-const startEncounter = (channel, client, server) =>
+const adventurePrep = (channel, client, server, adventrueRank, adventureZone) =>
 {
-    let type = getEncounterType()
-    console.log(type)
-    client.say(channel,
-        `encounter not emplemented ${type}`)
-}
+    let trainers = server.getTrainersOnAdventure()
+    let timeMod = 5000
 
-const encounterPokemon = (channel, client, server) =>
-{
-    client.say(channel, "PKM Trainers!")
+    for(const [key, value] of trainers)
+    {
+        timeMod += timeMod
+
+        setTimeout(()=>
+        {
+            console.log(`resolve encounter for trainer ${value.username}`)
+            let encounter = getEncounter(adventureZone, adventrueRank)
+            let result = `@${value.username}`
+
+            if(encounter.rank > 0)
+            {
+                result += ` You gained ${encounter.rank} Rank`
+                value.rank += encounter.rank
+            }
+
+            if(encounter.coin > 0)
+            {
+                result += ` You gained ${encounter.coin} Coin`
+                value.coin += encounter.coin
+            }
+
+            if(encounter.pkBalls > 0)
+            {
+                result += ` You gained ${encounter.pkBalls} PokeBalls`
+                value.pkBalls += encounter.pkBalls
+            }
+
+            client.say(channel, result)
+
+            if(encounter.pkm.length > 0)
+            {
+                if(value.encounter != "")
+                {
+
+                }
+                else
+                {
+                    result = `@${value.username} You encountered a wild ${encounter.pkm[0]} Type $toss/$catch to use a PokeBall - Type $pass to run`
+                    value.encounter = encounter.pkm[0]
+
+                    client.say(channel, result)
+                }
+            }
+
+            server.save()
+            
+        }, adventureTimerStep + timeMod / 4)
+    }
+
+    encountersCompleted++
+
+    setTimeout(()=>
+    {
+        client.say(channel, `Congratz you completed an adventure!`)
+        server.setAdventureState(server.adventureStateNone)
+        run(channel, client, server)
+    }, adventureTimerStep + timeMod)
 }
 
 const encounters = 
@@ -239,7 +355,7 @@ const addToPool = (pool, pkm, ammount) =>
     }
 }
 
-const getPkm = (reward, rank) =>
+const getPkm = (zone, rank) =>
 {
     let roll = random(10)
     let bonus = Math.floor(rank)
@@ -291,22 +407,22 @@ const getPkm = (reward, rank) =>
 
     addToPool(pkms,pokemonJson.legendary.medium,encounterRolls.legendRolls)
 
-    if(reward == 'tall grass')
+    if(zone == "Tall Grass")
     {
         addToPool(pkms,pokemonJson.tallgrass.easy,encounterRolls.easyRolls)
         addToPool(pkms,pokemonJson.tallgrass.medium,encounterRolls.mediumRolls)
         addToPool(pkms,pokemonJson.tallgrass.hard,encounterRolls.hardRolls)
-    } else if(reward == 'surf zone')
+    } else if(zone == "Water")
     {
         addToPool(pkms,pokemonJson.surfzone.easy,encounterRolls.easyRolls)
         addToPool(pkms,pokemonJson.surfzone.medium,encounterRolls.mediumRolls)
         addToPool(pkms,pokemonJson.surfzone.hard,encounterRolls.hardRolls)
-    } else if(reward == 'dark cave')
+    } else if(zone == "Dark Cave")
     {
         addToPool(pkms,pokemonJson.darkcave.easy,encounterRolls.easyRolls)
         addToPool(pkms,pokemonJson.darkcave.medium,encounterRolls.mediumRolls)
         addToPool(pkms,pokemonJson.darkcave.hard,encounterRolls.hardRolls)
-    }else if(reward == 'sky zone')
+    }else if(zone == "Sky")
     {
         addToPool(pkms,pokemonJson.skyzone.easy,encounterRolls.easyRolls)
         addToPool(pkms,pokemonJson.skyzone.medium,encounterRolls.mediumRolls)
@@ -315,7 +431,7 @@ const getPkm = (reward, rank) =>
 
     let mons = pkms.length
     let pkm  = pkms[random(mons-1)]
-    console.log(pokemonData)
+    //console.log(pokemonData)
     return pkm//pokemonData.getPokemonByName(pkm)
 }
 
@@ -372,7 +488,7 @@ const loadPokemonData = () =>
 /////////////////////////////////////////////////
 //Catch
 ////////////////////////////////////////////////
-const tossBall = (pkm) => {
+const tossBall = () => {
     let roll = Math.random()
     let capturedText = ""
     let captured = false
@@ -391,7 +507,8 @@ const tossBall = (pkm) => {
     
     const results = {
         captured : captured,
-        text: capturedText
+        text: capturedText,
+        shake: shake
     }
     
     return results;

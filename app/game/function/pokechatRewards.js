@@ -46,7 +46,6 @@ const surfZone = {
     userInputRequired: false
 }
 
-
 const primeBall = {
     autoFulfill : true,
     cost: ballCost,

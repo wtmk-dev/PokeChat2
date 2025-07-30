@@ -8,8 +8,8 @@ const createTrainer = () =>
         type:1,
         party : [], // max 6
         rank : 0,
-        coin : 0, 
-        pkBalls : 0,
+        coin : 10, 
+        pkBalls : 6,
         tradeToken : 0,
         evoToken: 0,
         box : [], // pokemon in box
@@ -27,10 +27,16 @@ const createTrainer = () =>
 
 const createTrainerCommand = "pkm"
 const joinAdventrueCommand = "j"
+const martCommand = "mart"
+const buyBallCommand = "ball"
+const buyFlexCommand = "flex"
 
 module.exports = 
 {
     createTrainer : createTrainer,
     createTrainerCommand : createTrainerCommand,
-    joinAdventrueCommand : joinAdventrueCommand
+    joinAdventrueCommand : joinAdventrueCommand,
+    martCommand : martCommand,
+    buyBallCommand : buyBallCommand,
+    buyFlexCommand : buyFlexCommand
 }

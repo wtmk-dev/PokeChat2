@@ -170,17 +170,21 @@ const save = () =>
 
 const addTrainerToAdventure = (trainer) =>
 {
-    if(adventureState === adventureStateQueuing)
+    let status = ""
+    if(trainersOnAdventure.has(trainer.username))
     {
-        if(trainersOnAdventure.has(trainer.username))
-        {
-            trainersOnAdventure[trainer.username] = trainer
-        }else
-        {
-            trainersOnAdventure.set(trainer.username, trainer)
-        }
+        trainersOnAdventure[trainer.username] = trainer
+    }else
+    {
+        trainersOnAdventure.set(trainer.username, trainer)
+        status = `You will start gaining encounter tokens. 
+            - Type $t to explore Tall Grass
+            - Type $w to explore Water Zone
+            - Type $s to explore Sky Zone
+            - Type $d to explore Dark Cave`
     }
     
+    return status
 }
 
 const getTrainersOnAdventure = () =>
@@ -223,6 +227,40 @@ const isVoteCommand = (command) =>
     return isTrue
 }
 
+const exploreZone = (trainer, command) =>
+{
+    let reward =
+    {
+        zone: "",
+        hasRedeamed: false
+    }
+
+    if(trainer.tradeToken > 0)
+    {
+        trainer.tradeToken--
+        reward.hasRedeamed = true
+
+        if(command === "t")
+        {
+            reward.zone = "Tall Grass"
+        }
+        else if(command === "w")
+        {
+            reward.zone = "Water"
+        }
+        else if(command === "s")
+        {
+            reward.zone = "Sky"
+        }
+        else if(command == "d")
+        {
+            reward.zone = "Dark Cave"
+        }
+    }
+
+    return reward
+}
+
 let tVote = 0
 let wVote = 0
 let sVote = 0
@@ -230,25 +268,33 @@ let dVote = 0
 
 const addVote = (command) =>
 {
+    let status = "you can't vote right now"
+
     if(adventureState != adventureStateNone)
     {
         if(command === "t")
         {
             tVote++
+            status = "voted for Tall Grass"
         }
         else if(command === "w")
         {
             wVote++
+            status = "voted for Water"
         }
         else if(command === "s")
         {
             sVote++
+            status = "voted for Sky"
         }
         else if(command === "d")
         {
             dVote++
+            status = "voted for Dark Cave"
         }
     }
+
+    return status
 }
 
 const getZone = () =>
@@ -262,10 +308,10 @@ const getZone = () =>
 
     let sortedE = [...zone.entries()].sort((a,b) => b[1] - a[1])
     let sortedM = new Map(sortedE)
-    console.log(sortedM)
+    //console.log(sortedM)
 
-    let next = sortedM.next()
-    console.log(next)
+    let next = [...sortedM][0]
+    //console.log(next)
 
     tVote = 0
     wVote = 0
@@ -277,7 +323,113 @@ const getZone = () =>
 
 const getAdventureRank = () =>
 {
-    return 0
+    let rank = 0
+    for(const [key, value] of trainersOnAdventure)
+    {
+        if(value.rank > 0)
+        {
+            rank += value.rank / 100 
+        }else
+        {
+            rank += .001
+        }
+    }
+
+    return Math.ceil(rank)
+}
+
+const ballCost = 5
+const flexCost = 100
+
+const getMart = () =>
+{
+    let mart = `Type command to purchase item 
+    - $ball : 10 PokeBalls : Cost ${ballCost} Coin
+    - $flex : list all PKM you own : Cost ${flexCost} Coin`
+
+    return mart
+}
+
+const buyBall = (trainer) =>
+{
+    let result = "not enough coin"
+    if(trainer.coin >= ballCost)
+    {
+        trainer.coin -= ballCost
+        trainer.pkBalls += 10
+        result = "balls purchased"
+
+        saveTrainers()
+    }
+
+    return result 
+}
+
+const buyFlex = (trainer) =>
+{
+    let result = "not enough coin"
+    if(trainer.coin >= flexCost)
+    {
+        trainer.coin -= flexCost
+        result = `BigPhish @${trainer.username} BigPhish `
+
+        for(let i = 0; i < trainer.party.length; i++)
+        {
+            let party = trainer.party
+            result += `GlitchLit ${party[i]} `
+        }
+
+        saveTrainers()
+    }
+
+    return result
+}
+
+const getRandomInt = (min, max) =>
+{
+  min = Math.ceil(min); // Ensure min is an integer
+  max = Math.floor(max); // Ensure max is an integer
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+const awardTrainersBalls = (rank) =>
+{
+    let min = 3
+    let max = 9
+
+    if(rank > 3)
+    {
+        min++
+        max++
+    }
+
+    if(rank > 6)
+    {
+        min++
+        max++
+    }
+
+    if(rank > 9)
+    {
+        min++
+        max++
+    }
+
+    let balls = getRandomInt(min,max)
+
+    for(const [key, value] of trainersOnAdventure)
+    {
+        value.pkBalls += balls
+    }
+
+    saveTrainers()
+
+    return balls
+}
+
+const getNumberOfEncoutners = () =>
+{
+
 }
 
 loadTrainers()
@@ -299,6 +451,12 @@ module.exports =
     isVoteCommand : isVoteCommand,
     addVote : addVote,
     getZone : getZone,
-    getAdventureRank : getAdventureRank
-
+    getAdventureRank : getAdventureRank,
+    getMart : getMart,
+    buyBall : buyBall,
+    buyFlex : buyFlex,
+    awardTrainersBalls : awardTrainersBalls,
+    getRandomInt : getRandomInt,
+    getNumberOfEncoutners : getNumberOfEncoutners,
+    exploreZone : exploreZone
 }

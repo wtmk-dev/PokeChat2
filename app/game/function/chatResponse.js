@@ -10,7 +10,7 @@ const startingPokemon  =
 const pickRegionState = 1
 const createStateComplete = 2
 
-const respondToTrainerCommand = (command, username, channel, server, client, args) =>
+const respondToTrainerCommand = (command, username, channel, server, client, args, game) =>
 {
     let isTrainer = server.has(username)
     let trainer
@@ -23,8 +23,8 @@ const respondToTrainerCommand = (command, username, channel, server, client, arg
     {
         trainer = server.getTrainer(username)
 
-        console.log(trainer.creationState)
-        console.log(command)
+//        console.log(trainer.creationState)
+//        console.log(command)
 
         if(trainer.creationState === pickRegionState)
         {
@@ -46,28 +46,103 @@ const respondToTrainerCommand = (command, username, channel, server, client, arg
             
             if(command === struct.createTrainerCommand)
             {
+                let status = server.addTrainerToAdventure(trainer)
                 handelShowStats(command, trainer, channel, server, client, args)
+
+                if(status != "")
+                {
+                    client.say(channel, status)
+                }
             }
             else if(command === struct.joinAdventrueCommand)
             {
-                server.addTrainerToAdventure(trainer)
+                let status = server.addTrainerToAdventure(trainer)
+
+                client.say(channel, 
+                    `@${trainer.username} ${status}`)
             }
             else if(server.isVoteCommand(command))
             {
-                server.addVote(command)
+                let status = server.exploreZone(trainer, command)
+
+                client.say(channel, 
+                    `@${trainer.username} ${status}`)
             }
+            else if(command === struct.martCommand)
+            {
+                let martText = server.getMart()
+                client.say(channel, 
+                    `${martText}`
+                )
+            }
+            else if(command === struct.buyBallCommand)
+            {
+                let ballText = server.buyBall(trainer)
+                client.say(channel,
+                    `${ballText}`
+                )
+            }
+            else if(command === struct.buyFlexCommand)
+            {
+                let flexText = server.buyFlex(trainer)
+                client.say(channel,
+                    `${flexText}`
+                )
+            }
+            else if(command === "toss" || command === "catch")
+            {
+                if(trainer.pkBalls > 0)
+                {
+                    trainer.pkBalls--
+                    let tossResults = game.tossBall()
+                    client.say(CHANNEL, tossResults.text)
+                    
+                    if(tossResults.shake)
+                    {
+                        tossResults = game.tossBall()
+                        client.say(CHANNEL, tossResults.text)
+                    }else {
+                        if(tossResults.captured)
+                        {
+                            successfulCapture(trainer)
+                        } else {
+                            failedCapture(trainer)
+                        }
+                    }
+                    server.saveTrainers()
+                    
+                }else {
+                    exitCatching(trainer)
+                    server.saveTrainers()
+                }
+            }
+
         }
     }
 }
 
+//const h
+
 const handelShowStats = (command, trainer, channel, server, client, args) =>
 {
     let total = trainer.party.length
-    client.say(channel, 
-        `@${trainer.username}...MorphinTime  
-        - Rank: ${trainer.rank} 
-        - PKBalls: ${trainer.rank}
-        - PKCaptured: ${total}`)
+    let result = `MorphinTime @${trainer.username} MorphinTime  
+        - Rank: ${trainer.rank}
+        - Coins: ${trainer.coin}
+        - PokeBalls: ${trainer.pkBalls}
+        - PKM Captured: ${total} `
+
+    if(trainer.tradeToken > 0)
+    {
+        result += ` - Encoutner Tokens: ${trainer.tradeToken}`
+    }
+
+    if(trainer.encounter != "")
+    {
+        result += ` - PKM encounter: ${trainer.encounter} Type $toss/$catch to use a PokeBall or $pass to run`
+    }
+
+    client.say(channel, result)
 }
 
 const handelCreationState = (command, username, channel, server, client, args) =>
@@ -82,7 +157,7 @@ const handelCreationState = (command, username, channel, server, client, args) =
     server.add(newTrainer)
     trainer = newTrainer;
 
-    handelPickRegionState(command, trainer, channel, server, client, args)
+    pickRegion(trainer, channel, client, args)
 }
 
 const pickRegion = (trainer, channel, client, args) => 
@@ -129,7 +204,7 @@ const setRegion = (command, trainer, channel, server, client, args) =>
 
         server.save()
         client.say(channel, 
-        `@${trainer.username}, MorphinTime...\n
+        `MorphinTime @${trainer.username}, MorphinTime 
         So you are from ${region} PowerUpL! \n
         Great to have you. Type $pkm in chat to see your stats`);
 
