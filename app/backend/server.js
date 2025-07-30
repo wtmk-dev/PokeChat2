@@ -232,29 +232,33 @@ const exploreZone = (trainer, command) =>
     let reward =
     {
         zone: "",
-        hasRedeamed: false
+        text: `@${trainer.username} encounter token required.`,
     }
 
     if(trainer.tradeToken > 0)
     {
         trainer.tradeToken--
-        reward.hasRedeamed = true
+        reward.text = `@${trainer.username} `
 
         if(command === "t")
         {
             reward.zone = "Tall Grass"
+            reward.text += `you enter the Tall Grass`
         }
         else if(command === "w")
         {
             reward.zone = "Water"
+            reward.text += `you enter the Water Zone`
         }
         else if(command === "s")
         {
             reward.zone = "Sky"
+            reward.text += `you enter the Sky Zone`
         }
         else if(command == "d")
         {
             reward.zone = "Dark Cave"
+            reward.text += `you enter the Dark Cave`
         }
     }
 
@@ -371,7 +375,7 @@ const buyFlex = (trainer) =>
     if(trainer.coin >= flexCost)
     {
         trainer.coin -= flexCost
-        result = `BigPhish @${trainer.username} BigPhish `
+        result = `@${trainer.username} BigPhish `
 
         for(let i = 0; i < trainer.party.length; i++)
         {

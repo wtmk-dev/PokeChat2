@@ -63,10 +63,20 @@ const respondToTrainerCommand = (command, username, channel, server, client, arg
             }
             else if(server.isVoteCommand(command))
             {
-                let status = server.exploreZone(trainer, command)
+                if(trainer.exploreState != 1)
+                {
+                    let status = server.exploreZone(trainer, command)
 
-                client.say(channel, 
-                    `@${trainer.username} ${status}`)
+                    client.say(channel, 
+                        `${status.text}`)
+
+                    if(status.zone != "")
+                    {
+                        //trainer.exploreState = 1
+                        game.doEncounter(client, channel, server, trainer, status)
+                    }
+                }
+                    
             }
             else if(command === struct.martCommand)
             {
@@ -89,57 +99,128 @@ const respondToTrainerCommand = (command, username, channel, server, client, arg
                     `${flexText}`
                 )
             }
-            else if(command === "toss" || command === "catch")
+            else if(command === struct.tossCommand || command === struct.catchCommand)
             {
-                if(trainer.pkBalls > 0)
+                if(trainer.pkBalls > 0 && trainer.encounter != "" && trainer.throwState === 0)
                 {
                     trainer.pkBalls--
-                    let tossResults = game.tossBall()
-                    client.say(CHANNEL, tossResults.text)
-                    
-                    if(tossResults.shake)
-                    {
-                        tossResults = game.tossBall()
-                        client.say(CHANNEL, tossResults.text)
-                    }else {
-                        if(tossResults.captured)
-                        {
-                            successfulCapture(trainer)
-                        } else {
-                            failedCapture(trainer)
-                        }
-                    }
-                    server.saveTrainers()
-                    
-                }else {
-                    exitCatching(trainer)
-                    server.saveTrainers()
+                    doTossBall(client, channel, server, trainer, game)
+                }
+            }else if(command === struct.passCommand)
+            {
+                if(trainer.encounter != "")
+                {
+                    let passReward = game.getPassReward()
+                    doPass(client, channel, server, trainer, passReward)
+                    server.save()
                 }
             }
-
         }
     }
 }
 
-//const h
+const doPass = (client, channel, server, trainer, reward) =>
+{
+    console.log(reward)
+    let text = `@${trainer.username} ran from ${trainer.encounter} TPFufun `
+
+    if(reward.coin > 0)
+    {
+        trainer.coin += reward.coin
+        text += ` -You gained ${reward.coin} `
+    }
+
+    if(reward.pkBalls > 0)
+    {
+        trainer.pkBalls += reward.pkBalls
+        text += ` -You gained ${reward.pkBalls} `
+    }
+
+    if(reward.rank > 0)
+    {
+        trainer.rank += reward.rank
+        text += ` -You gained ${reward.rank} `
+    }
+
+    trainer.encounter = ""
+    client.say(channel, text)
+}
+
+const doTossBall = (client, channel, server, trainer, game) =>
+{
+    trainer.throwState = 1 // use to lock throw state
+    let tossResults = game.tossBall()
+    let time = 5000
+    client.say(channel, tossResults.text)
+
+    if(tossResults.shake)
+    {
+        setTimeout(()=>
+            {
+                doTossBall(client, channel, server, trainer, game)
+            },time)
+    }else
+    {
+        if(tossResults.captured)
+        {
+            successfulCapture(client, channel, trainer)
+        } else {
+            failedCapture(client, channel, trainer)
+        }
+
+        server.save()
+    }
+}
+
+const successfulCapture = (client, channel, trainer) => 
+{
+    pkm = trainer.encounter;
+    trainer.encounter = ""
+    trainer.throwState = 0 // to unlock throw state
+
+    trainer.party.push(pkm.toUpperCase())
+    client.say(channel, 
+        `@${trainer.username} 
+        YOU CAPTURED ${pkm.toUpperCase()} GlitchLit`
+    )
+}
+
+const failedCapture = (client, channel, trainer) => 
+{
+    trainer.throwState = 0 // to unlock throw state
+
+    if(trainer.pkBalls > 0)
+    {
+        client.say(channel, 
+            `@${trainer.username} 
+            type $toss/$catch to throw a PKBall!`)
+    } 
+    else 
+    {
+        pkm = trainer.encounter;
+        client.say(CHANNEL, 
+            `@${trainer.username} 
+            Looks like ${pkm} got away SirSad`)
+
+        trainer.encounter = ""
+    }
+}
 
 const handelShowStats = (command, trainer, channel, server, client, args) =>
 {
     let total = trainer.party.length
-    let result = `MorphinTime @${trainer.username} MorphinTime  
+    let result = `@${trainer.username} MorphinTime  
         - Rank: ${trainer.rank}
         - Coins: ${trainer.coin}
         - PokeBalls: ${trainer.pkBalls}
-        - PKM Captured: ${total} `
-
-    if(trainer.tradeToken > 0)
-    {
-        result += ` - Encoutner Tokens: ${trainer.tradeToken}`
-    }
+        - PKM Captured: ${total} 
+        - Encoutner Tokens: ${trainer.tradeToken} `
 
     if(trainer.encounter != "")
     {
-        result += ` - PKM encounter: ${trainer.encounter} Type $toss/$catch to use a PokeBall or $pass to run`
+        result += ` 
+        - PKM encounter: 
+        ${trainer.encounter} Type $toss/$catch to use a PokeBall or $pass to run`
     }
 
     client.say(channel, result)

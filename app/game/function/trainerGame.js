@@ -3,23 +3,23 @@ const fs = require('fs')
 let pokemonJson = require("../data/pokechatEncounters.json")
 const { channel } = require('diagnostics_channel')
 
-let adventureTimerMin = 100000
-let adventureTimerMax = 300000
+let adventureTimerMin = 90000
+let adventureTimerMax = 160000
 
 let adventureTimer = 60000
 
 let adventureTimerStep = 60000
-let encountersCompleted = 0
+let encountersCompletedTime = 100
 
 const run = (channel, client, server) =>
 {
     adventureTimer = server.getRandomInt(adventureTimerMin, adventureTimerMax)
-    encountersCompleted = 0
     
     setTimeout(() => 
     {
         console.log("award encounter token")
-        server.setAdventureState(server.adventureStateQueuing)
+
+        //server.setAdventureState(server.adventureStateQueuing)
         awardEncounterTokens(channel, client, server)
     }, adventureTimer)
 }
@@ -30,27 +30,30 @@ const awardEncounterTokens = (channel, client, server) =>
     let time = 5000
 
     client.say(channel,
-            `Type $pkm to join PokeChat!`)
+            `Type $pkm to join PokeChat! 
+            TwitchLit ALL joined trainers gained an encounter token!`)
 
     for(const [key, value] of trainers)
     {
         value.tradeToken++
-        time + 1000
+        /*time + 1000
 
         setTimeout(() => 
         {
             client.say(channel,
             `@${value.username} gained an Encounter token`)
-            server.save()
         }, time)
+        */
     }
 
     setTimeout(() => 
     {
-        client.say(channel,
-        `Type $t, $d, $w or $s to start an encounter`)
+//        client.say(channel,
+//        `Type $t, $d, $w or $s to start an encounter`)
         run(channel, client, server)
-    }, time * trainers.size)
+        server.save()
+    }, time)
+
 }
 
 const voteOnZone = (channel, client, server) =>
@@ -188,14 +191,63 @@ const adventurePrep = (channel, client, server, adventrueRank, adventureZone) =>
         }, adventureTimerStep + timeMod / 4)
     }
 
-    encountersCompleted++
-
     setTimeout(()=>
     {
         client.say(channel, `Congratz you completed an adventure!`)
         server.setAdventureState(server.adventureStateNone)
         run(channel, client, server)
     }, adventureTimerStep + timeMod)
+}
+
+const doEncounter = (client, channel, server, trainer, status) =>
+{
+    setTimeout(()=>
+    {
+        console.log(`resolve encounter for trainer ${trainer.username}`)
+
+        let encounter = getEncounter(status.zone, trainer.rank)
+        let result = `@${trainer.username}`
+
+        if(encounter.rank > 0)
+        {
+            result += ` You gained ${encounter.rank} Rank`
+            trainer.rank += encounter.rank
+        }
+
+        if(encounter.coin > 0)
+        {
+            result += ` You gained ${encounter.coin} Coin`
+            trainer.coin += encounter.coin
+        }
+
+        if(encounter.pkBalls > 0)
+        {
+            result += ` You gained ${encounter.pkBalls} PokeBalls`
+            trainer.pkBalls += encounter.pkBalls
+        }
+
+        client.say(channel, result)
+
+        if(encounter.pkm.length > 0)
+        {
+            if(trainer.encounter != "")
+            {
+                console.log(`${trainer.username} Already in encounter`)
+            }
+            else
+            {
+                result = `@${trainer.username} You encountered a wild ${encounter.pkm[0]} Type $toss/$catch to use a PokeBall - Type $pass to run`
+                trainer.encounter = encounter.pkm[0]
+
+                client.say(channel, result)
+            }
+        }
+
+        //trainer.exoloreState = 0
+        server.save()
+        
+    }, encountersCompletedTime)
+    
 }
 
 const encounters = 
@@ -556,5 +608,6 @@ module.exports =
     getEvolved: (pkm) => {return getEvolved(pkm)},
     getIvBoost: () => {return getIvBoost()},
     random: (die) => {return random(die)},
-    run : (channel, client, server) => {return run(channel, client, server)}
+    run : (channel, client, server) => {return run(channel, client, server)},
+    doEncounter : doEncounter
 }

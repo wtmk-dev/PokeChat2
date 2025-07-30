@@ -20,6 +20,8 @@ const createTrainer = () =>
             offer: ""
         },
         encounter: "",
+        throwState: 0, //ball thrown 1
+        exoloreState: 0, //exploring 1
     }
 
     return trainer;
@@ -30,6 +32,9 @@ const joinAdventrueCommand = "j"
 const martCommand = "mart"
 const buyBallCommand = "ball"
 const buyFlexCommand = "flex"
+const tossCommand = "toss"
+const catchCommand = "catch"
+const passCommand = "pass"
 
 module.exports = 
 {
@@ -38,5 +43,8 @@ module.exports =
     joinAdventrueCommand : joinAdventrueCommand,
     martCommand : martCommand,
     buyBallCommand : buyBallCommand,
-    buyFlexCommand : buyFlexCommand
+    buyFlexCommand : buyFlexCommand,
+    tossCommand : tossCommand,
+    catchCommand : catchCommand,
+    passCommand : passCommand
 }
