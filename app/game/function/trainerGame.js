@@ -3,8 +3,8 @@ const fs = require('fs')
 let pokemonJson = require("../data/pokechatEncounters.json")
 const { channel } = require('diagnostics_channel')
 
-let adventureTimerMin = 90000
-let adventureTimerMax = 160000
+let adventureTimerMin = 81000
+let adventureTimerMax = 270000
 
 let adventureTimer = 60000
 
